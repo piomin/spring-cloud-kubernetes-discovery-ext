@@ -5,8 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.piomin</groupId>
-    <artifactId>spring-cloud-kubernetes-discovery-ext</artifactId>
+    <artifactId>spring-cloud-kubernetes-discovery-ext-starter</artifactId>
     <version>1.0.0.RELEASE</version>
+    <name>spring-cloud-kubernetes-discovery-ext</name>
+    <description>Library for Spring Cloud Kubernetes external registration</description>
+    <url>https://github.com/piomin/spring-cloud-kubernetes-discovery-ext</url>
 
     <developers>
         <developer>
@@ -29,9 +32,9 @@
     </properties>
 
     <scm>
-        <connection>scm:git:git://github.com/piomin/spring-boot-logging.git</connection>
-        <developerConnection>scm:git:git@github.com:piomin/spring-boot-logging.git</developerConnection>
-        <url>https://github.com/piomin/spring-boot-logging</url>
+        <connection>scm:git:git://github.com/piomin/spring-cloud-kubernetes-discovery-ext.git</connection>
+        <developerConnection>scm:git:git@github.com/piomin/spring-cloud-kubernetes-discovery-ext.git</developerConnection>
+        <url>https://github.com/piomin/spring-cloud-kubernetes-discovery-ext</url>
     </scm>
 
     <distributionManagement>
