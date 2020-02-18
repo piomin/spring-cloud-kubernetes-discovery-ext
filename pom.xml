@@ -7,7 +7,7 @@
     <groupId>com.github.piomin</groupId>
     <artifactId>spring-cloud-kubernetes-discovery-ext-starter</artifactId>
     <version>1.0.0.RELEASE</version>
-    <name>spring-cloud-kubernetes-discovery-ext</name>
+    <name>spring-cloud-kubernetes-discovery-ext-starter</name>
     <description>Library for Spring Cloud Kubernetes external registration</description>
     <url>https://github.com/piomin/spring-cloud-kubernetes-discovery-ext</url>
 
