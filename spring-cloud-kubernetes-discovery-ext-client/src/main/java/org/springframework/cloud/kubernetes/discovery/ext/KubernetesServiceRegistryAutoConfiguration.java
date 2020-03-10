@@ -1,4 +1,4 @@
-package ext;
+package org.springframework.cloud.kubernetes.discovery.ext;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
 
