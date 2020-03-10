@@ -1,4 +1,6 @@
-package org.springframework.cloud.kubernetes.discovery.ext;
+package ext;
+
+import java.net.UnknownHostException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,8 +13,6 @@ import org.springframework.cloud.kubernetes.PodUtils;
 import org.springframework.cloud.kubernetes.discovery.KubernetesDiscoveryProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.net.UnknownHostException;
 
 @Configuration
 @ConditionalOnProperty(name = "spring.cloud.kubernetes.discovery.register", havingValue = "true")

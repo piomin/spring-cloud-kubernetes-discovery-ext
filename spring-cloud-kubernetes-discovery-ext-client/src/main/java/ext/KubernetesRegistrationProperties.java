@@ -1,4 +1,4 @@
-package org.springframework.cloud.kubernetes.discovery.ext;
+package ext;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

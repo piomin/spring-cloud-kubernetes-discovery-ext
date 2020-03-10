@@ -1,14 +1,28 @@
-package org.springframework.cloud.kubernetes.discovery.ext;
+package ext;
 
-import io.fabric8.kubernetes.api.model.*;
+import java.util.Collections;
+
+import io.fabric8.kubernetes.api.model.DoneableEndpoints;
+import io.fabric8.kubernetes.api.model.EndpointAddress;
+import io.fabric8.kubernetes.api.model.EndpointAddressBuilder;
+import io.fabric8.kubernetes.api.model.EndpointPort;
+import io.fabric8.kubernetes.api.model.EndpointPortBuilder;
+import io.fabric8.kubernetes.api.model.EndpointSubset;
+import io.fabric8.kubernetes.api.model.EndpointSubsetBuilder;
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.EndpointsBuilder;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServicePortBuilder;
+import io.fabric8.kubernetes.api.model.ServiceSpecBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
 import org.springframework.cloud.kubernetes.discovery.KubernetesDiscoveryProperties;
-
-import java.util.Collections;
 
 public class KubernetesServiceRegistry implements ServiceRegistry<KubernetesRegistration> {
 

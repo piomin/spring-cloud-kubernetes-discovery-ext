@@ -1,12 +1,13 @@
-package org.springframework.cloud.kubernetes.discovery.ext;
+package ext;
+
+import java.net.UnknownHostException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.SmartApplicationListener;
-
-import java.net.UnknownHostException;
 
 public class KubernetesAutoServiceRegistrationListener implements SmartApplicationListener {
 

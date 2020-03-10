@@ -1,11 +1,11 @@
-package org.springframework.cloud.kubernetes.discovery.ext;
-
-import org.springframework.cloud.client.serviceregistry.Registration;
-import org.springframework.cloud.kubernetes.discovery.KubernetesDiscoveryProperties;
+package ext;
 
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.cloud.client.serviceregistry.Registration;
+import org.springframework.cloud.kubernetes.discovery.KubernetesDiscoveryProperties;
 
 public class KubernetesRegistration implements Registration {
 

@@ -1,4 +1,7 @@
-package org.springframework.cloud.kubernetes.discovery.ext;
+package ext;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration;
 import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationProperties;
@@ -7,9 +10,6 @@ import org.springframework.cloud.kubernetes.PodUtils;
 import org.springframework.cloud.kubernetes.discovery.KubernetesDiscoveryProperties;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 public class KubernetesAutoServiceRegistration extends AbstractAutoServiceRegistration<KubernetesRegistration> {
 
