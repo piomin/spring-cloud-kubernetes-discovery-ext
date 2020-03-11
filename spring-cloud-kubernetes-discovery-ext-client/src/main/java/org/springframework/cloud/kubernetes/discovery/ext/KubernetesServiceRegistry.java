@@ -27,6 +27,7 @@ import org.springframework.cloud.kubernetes.discovery.KubernetesDiscoveryPropert
 public class KubernetesServiceRegistry implements ServiceRegistry<KubernetesRegistration> {
 
     private static final Logger LOG = LoggerFactory.getLogger(KubernetesServiceRegistry.class);
+    private static final String LABEL_IS_EXTERNAL_NAME = "external";
 
     private final KubernetesClient client;
     private KubernetesDiscoveryProperties properties;
@@ -122,6 +123,7 @@ public class KubernetesServiceRegistry implements ServiceRegistry<KubernetesRegi
         ObjectMeta metadata = new ObjectMetaBuilder()
                 .withName(registration.getMetadata().get("name"))
                 .withNamespace(registration.getMetadata().get("namespace"))
+                .withLabels(Collections.singletonMap(LABEL_IS_EXTERNAL_NAME, "true"))
                 .build();
         Endpoints endpoints = new EndpointsBuilder().withSubsets(subset).withMetadata(metadata).build();
         return endpoints;
