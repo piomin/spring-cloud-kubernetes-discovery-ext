@@ -45,12 +45,11 @@ public class KubernetesServiceRegistry implements ServiceRegistry<KubernetesRegi
                 .withName(registration.getMetadata().get("name"));
         Endpoints endpoints = resource.get();
         if (endpoints == null) {
-            Endpoints e = client.endpoints().create(create(registration));
-            LOG.info("New endpoint: {}", e);
             Service s = client.services().createNew()
                     .withMetadata(new ObjectMetaBuilder()
                             .withName(registration.getMetadata().get("name"))
                             .withLabels(Collections.singletonMap("app", registration.getMetadata().get("name")))
+                            .withAnnotations(Collections.singletonMap("healthUrl", "/actuator/health"))
                             .build())
                     .withSpec(new ServiceSpecBuilder()
                             .withPorts(new ServicePortBuilder().withProtocol("TCP").withPort(registration.getPort()).build())
@@ -58,6 +57,8 @@ public class KubernetesServiceRegistry implements ServiceRegistry<KubernetesRegi
                             .build())
                     .done();
             LOG.info("New service: {}", s);
+            Endpoints e = client.endpoints().createOrReplace(create(registration));
+            LOG.info("New endpoint: {}", e);
         } else {
             try {
                 Endpoints updatedEndpoints = resource.edit()
