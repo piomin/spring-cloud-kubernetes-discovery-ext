@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: spring-cloud-discovery-watcher
+  namespace: external
 spec:
   selector:
     matchLabels:
@@ -19,7 +20,7 @@ spec:
             memory: "32Mi"
             cpu: "100m"
           limits:
-            memory: "256Mi"
-            cpu: "500m"
+            memory: "320Mi"
+            cpu: "1000m"
         ports:
         - containerPort: 8080
