@@ -10,11 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.cloud.kubernetes.discovery.ext.watcher.model.KubernetesRegistration;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-@Configuration
+@Service
 @Async
 public class DeactivateServiceTask {
 
