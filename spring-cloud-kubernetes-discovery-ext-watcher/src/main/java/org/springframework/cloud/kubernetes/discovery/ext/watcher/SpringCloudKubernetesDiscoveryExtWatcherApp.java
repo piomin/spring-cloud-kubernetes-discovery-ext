@@ -1,5 +1,8 @@
 package org.springframework.cloud.kubernetes.discovery.ext.watcher;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -20,6 +23,11 @@ public class SpringCloudKubernetesDiscoveryExtWatcherApp {
 	@Bean
 	RestTemplate restTemplate() {
 		return new RestTemplateBuilder().build();
+	}
+
+	@Bean
+	List<String> watchedUrls() {
+		return new ArrayList<>();
 	}
 
 }

@@ -27,12 +27,13 @@ public class LivenessScheduler {
 	private DeactivateServiceTask task;
 	private KubernetesClient kubernetesClient;
 	private RestTemplate restTemplate;
-	private List<String> watchedUrls = new ArrayList<>();
+	private List<String> watchedUrls;
 
-	public LivenessScheduler(KubernetesClient kubernetesClient, RestTemplate restTemplate, DeactivateServiceTask task) {
+	public LivenessScheduler(KubernetesClient kubernetesClient, RestTemplate restTemplate, DeactivateServiceTask task, List<String> watchedUrls) {
 		this.kubernetesClient = kubernetesClient;
 		this.restTemplate = restTemplate;
 		this.task = task;
+		this.watchedUrls = watchedUrls;
 	}
 
 	@Scheduled(fixedRate = 10000)
@@ -40,22 +41,30 @@ public class LivenessScheduler {
 		EndpointsList endpointsList = kubernetesClient.endpoints()
 				.inNamespace(kubernetesClient.getNamespace())
 				.list();
-		endpointsList.getItems().forEach(it -> LOGGER.info("Endpoint: {}", it));
 		endpointsList.getItems().stream()
 				.filter(endpoints -> endpoints.getMetadata().getLabels().containsKey(LABEL_IS_EXTERNAL_NAME))
 				.forEach(it -> {
-					EndpointSubset subset = it.getSubsets().get(0);
-					subset.getAddresses().forEach(endpointAddress -> {
-						String url = "http://" + endpointAddress.getIp() + ":" + subset.getPorts().get(0).getPort() + "/actuator/health";
-						if (!watchedUrls.contains(url)) {
-							ResponseEntity<Health> responseEntity = restTemplate.getForEntity(url, Health.class);
-							LOGGER.info("Endpoint {}: status->{}", url, responseEntity.getStatusCodeValue());
-							if (responseEntity.getStatusCode() != HttpStatus.OK) {
-								task.process(url, create(endpointAddress.getIp(), subset.getPorts().get(0).getPort(), it.getMetadata().getName()));
-								watchedUrls.add(url);
+					if (!it.getSubsets().isEmpty()) {
+						EndpointSubset subset = it.getSubsets().get(0);
+						subset.getAddresses().forEach(endpointAddress -> {
+							String url = "http://" + endpointAddress.getIp() + ":" + subset.getPorts().get(0)
+									.getPort() + "/actuator/health";
+							if (!watchedUrls.contains(url)) {
+								ResponseEntity<String> responseEntity = null;
+								try {
+									responseEntity = restTemplate.getForEntity(url, String.class);
+									LOGGER.info("Endpoint {}: status->{}", url, responseEntity.getStatusCodeValue());
+								} catch (Exception e) {
+									LOGGER.info("Error connecting to endpoint: {}", url);
+								}
+								if (responseEntity == null || responseEntity.getStatusCode() != HttpStatus.OK) {
+									task.process(url, create(endpointAddress.getIp(), subset.getPorts().get(0)
+											.getPort(), it.getMetadata().getName()));
+									watchedUrls.add(url);
+								}
 							}
-						}
-					});
+						});
+					}
 				});
 	}
 
