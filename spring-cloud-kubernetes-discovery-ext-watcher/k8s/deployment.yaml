@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: spring-cloud-discovery-watcher
-  namespace: external
 spec:
   selector:
     matchLabels:

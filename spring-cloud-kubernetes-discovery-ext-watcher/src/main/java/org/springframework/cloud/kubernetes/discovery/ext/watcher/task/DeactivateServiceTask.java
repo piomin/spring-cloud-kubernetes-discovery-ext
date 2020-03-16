@@ -63,7 +63,7 @@ public class DeactivateServiceTask {
     }
 
     private void deregister(KubernetesRegistration registration) {
-        LOGGER.info("De-registering service with kubernetes: " + registration.getMetadata().get("name"));
+        LOGGER.info("De-registering endpoint: {}", registration);
         Resource<Endpoints, DoneableEndpoints> resource = kubernetesClient.endpoints()
                 .inNamespace(kubernetesClient.getNamespace())
                 .withName(registration.getMetadata().get("name"));

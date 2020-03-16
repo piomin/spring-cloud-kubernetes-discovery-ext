@@ -53,7 +53,7 @@ public class LivenessScheduler {
 								ResponseEntity<String> responseEntity = null;
 								try {
 									responseEntity = restTemplate.getForEntity(url, String.class);
-									LOGGER.info("Endpoint {}: status->{}", url, responseEntity.getStatusCodeValue());
+									LOGGER.info("Active endpoint check: url->{}, status->{}", url, responseEntity.getStatusCodeValue());
 								} catch (Exception e) {
 									LOGGER.info("Error connecting to endpoint: {}", url);
 								}
@@ -70,6 +70,7 @@ public class LivenessScheduler {
 
 	private KubernetesRegistration create(String ip, int port, String name) {
 		KubernetesRegistration registration = new KubernetesRegistration();
+		registration.setServiceId(name);
 		registration.setHost(ip);
 		registration.setPort(port);
 		registration.getMetadata().put("name", name);

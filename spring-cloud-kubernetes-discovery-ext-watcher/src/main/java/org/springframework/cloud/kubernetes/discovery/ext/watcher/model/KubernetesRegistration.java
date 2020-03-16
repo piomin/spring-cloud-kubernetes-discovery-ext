@@ -75,4 +75,12 @@ public class KubernetesRegistration implements Registration {
         this.metadata = metadata;
     }
 
+    @Override
+    public String toString() {
+        return "KubernetesRegistration{" +
+                "serviceId='" + serviceId + '\'' +
+                ", host='" + host + '\'' +
+                ", port=" + port +
+                '}';
+    }
 }
