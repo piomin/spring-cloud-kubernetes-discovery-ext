@@ -8,6 +8,13 @@
     <artifactId>spring-cloud-kubernetes-discovery-ext-starter</artifactId>
     <packaging>pom</packaging>
     <version>1.0.1.RELEASE</version>
+
+    <properties>
+        <sonar.projectKey>piomin_spring-cloud-kubernetes-discovery-ext</sonar.projectKey>
+        <sonar.organization>piomin</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    </properties>
+
     <modules>
         <module>spring-cloud-kubernetes-discovery-ext-client</module>
         <module>spring-cloud-kubernetes-discovery-ext-watcher</module>
