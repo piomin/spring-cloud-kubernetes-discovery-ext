@@ -1,15 +1,15 @@
 package org.springframework.cloud.kubernetes.discovery.ext;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration;
 import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationProperties;
 import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
-import org.springframework.cloud.kubernetes.PodUtils;
-import org.springframework.cloud.kubernetes.discovery.KubernetesDiscoveryProperties;
+import org.springframework.cloud.kubernetes.commons.PodUtils;
+import org.springframework.cloud.kubernetes.commons.discovery.KubernetesDiscoveryProperties;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class KubernetesAutoServiceRegistration extends AbstractAutoServiceRegistration<KubernetesRegistration> {
 
@@ -60,10 +60,11 @@ public class KubernetesAutoServiceRegistration extends AbstractAutoServiceRegist
     }
 
     public String getAppName(KubernetesDiscoveryProperties properties, Environment env) {
-        final String appName = properties.getServiceName();
-        if (StringUtils.hasText(appName)) {
-            return appName;
-        }
+        // TODO - think about a replacement
+//        final String appName = properties.getServiceName();
+//        if (StringUtils.hasText(appName)) {
+//            return appName;
+//        }
         return env.getProperty("spring.application.name", "application");
     }
 
