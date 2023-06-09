@@ -1,28 +1,14 @@
 package org.springframework.cloud.kubernetes.discovery.ext;
 
-import java.util.Collections;
-
-import io.fabric8.kubernetes.api.model.DoneableEndpoints;
-import io.fabric8.kubernetes.api.model.EndpointAddress;
-import io.fabric8.kubernetes.api.model.EndpointAddressBuilder;
-import io.fabric8.kubernetes.api.model.EndpointPort;
-import io.fabric8.kubernetes.api.model.EndpointPortBuilder;
-import io.fabric8.kubernetes.api.model.EndpointSubset;
-import io.fabric8.kubernetes.api.model.EndpointSubsetBuilder;
-import io.fabric8.kubernetes.api.model.Endpoints;
-import io.fabric8.kubernetes.api.model.EndpointsBuilder;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServicePortBuilder;
-import io.fabric8.kubernetes.api.model.ServiceSpecBuilder;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
-import org.springframework.cloud.kubernetes.discovery.KubernetesDiscoveryProperties;
+import org.springframework.cloud.kubernetes.commons.discovery.KubernetesDiscoveryProperties;
+
+import java.util.Collections;
 
 public class KubernetesServiceRegistry implements ServiceRegistry<KubernetesRegistration> {
 
@@ -40,41 +26,48 @@ public class KubernetesServiceRegistry implements ServiceRegistry<KubernetesRegi
     @Override
     public void register(KubernetesRegistration registration) {
         LOG.info("Registering service with kubernetes: " + registration.getServiceId());
-        Resource<Endpoints, DoneableEndpoints> resource = client.endpoints()
+        Resource<Endpoints> resource = client.endpoints()
                 .inNamespace(registration.getMetadata().get("namespace"))
                 .withName(registration.getMetadata().get("name"));
         Endpoints endpoints = resource.get();
         if (endpoints == null) {
-            Service s = client.services().createNew()
-                    .withMetadata(new ObjectMetaBuilder()
-                            .withName(registration.getMetadata().get("name"))
-                            .withLabels(Collections.singletonMap("app", registration.getMetadata().get("name")))
-                            .withAnnotations(Collections.singletonMap("healthUrl", "/actuator/health"))
-                            .build())
-                    .withSpec(new ServiceSpecBuilder()
-                            .withPorts(new ServicePortBuilder().withProtocol("TCP").withPort(registration.getPort()).build())
-                            .withSelector(Collections.singletonMap("app", registration.getMetadata().get("name")))
-                            .build())
-                    .done();
-            LOG.info("New service: {}", s);
+            Service s = new ServiceBuilder().withNewMetadata()
+                    .withName(registration.getMetadata().get("name"))
+                    .withLabels(Collections.singletonMap("app", registration.getMetadata().get("name")))
+                    .withAnnotations(Collections.singletonMap("healthUrl", "/actuator/health"))
+                    .endMetadata()
+                    .withNewSpec()
+                        .addNewPort().withPort(registration.getPort()).withProtocol("TCP").endPort()
+                        .addToSelector(Collections.singletonMap("app", registration.getMetadata().get("name")))
+                    .endSpec().build();
+
+            Service ss = client.services().inNamespace(registration.getMetadata().get("namespace"))
+                    .create(s);
+            LOG.info("New service: {}", ss);
             Endpoints e = client.endpoints().createOrReplace(create(registration));
             LOG.info("New endpoint: {}", e);
         } else {
             try {
-                Endpoints updatedEndpoints = resource.edit()
-                        .editMatchingSubset(builder -> builder.hasMatchingPort(v -> v.getPort().equals(registration.getPort())))
-                        .addToAddresses(new EndpointAddressBuilder().withIp(registration.getHost()).build())
-                        .endSubset()
-                        .done();
-                LOG.info("Endpoint updated: {}", updatedEndpoints);
+                for (EndpointSubset s : endpoints.getSubsets()) {
+                   if (s.getPorts().contains(registration.getPort())) {
+                       s.getAddresses().add(new EndpointAddressBuilder().withIp(registration.getHost()).build());
+                   }
+                }
+                resource.edit().setSubsets(endpoints.getSubsets());
+
+                LOG.info("Endpoint updated: {}", resource.get());
             } catch (RuntimeException e) {
-                Endpoints updatedEndpoints = resource.edit()
-                        .addNewSubset()
-                        .withPorts(new EndpointPortBuilder().withPort(registration.getPort()).build())
-                        .withAddresses(new EndpointAddressBuilder().withIp(registration.getHost()).build())
-                        .endSubset()
-                        .done();
-                LOG.info("Endpoint updated: {}", updatedEndpoints);
+                EndpointSubset es = new EndpointSubsetBuilder().addNewPort().withPort(registration.getPort()).endPort()
+                        .addNewAddress().withIp(registration.getHost()).endAddress()
+                        .build();
+                resource.edit().getSubsets().add(es);
+//                Endpoints updatedEndpoints = resource.edit().getSubsets();
+//                        .addNewSubset()
+//                        .withPorts(new EndpointPortBuilder().withPort(registration.getPort()).build())
+//                        .withAddresses(new EndpointAddressBuilder().withIp(registration.getHost()).build())
+//                        .endSubset()
+//                        .done();
+                LOG.info("Endpoint updated: {}", resource.get());
             }
         }
 
@@ -83,23 +76,29 @@ public class KubernetesServiceRegistry implements ServiceRegistry<KubernetesRegi
     @Override
     public void deregister(KubernetesRegistration registration) {
         LOG.info("De-registering service with kubernetes: " + registration.getInstanceId());
-        Resource<Endpoints, DoneableEndpoints> resource = client.endpoints()
+        Resource<Endpoints> resource = client.endpoints()
                 .inNamespace(registration.getMetadata().get("namespace"))
                 .withName(registration.getMetadata().get("name"));
 
         EndpointAddress address = new EndpointAddressBuilder().withIp(registration.getHost()).build();
-        Endpoints updatedEndpoints = resource.edit()
-                .editMatchingSubset(builder -> builder.hasMatchingPort(v -> v.getPort().equals(registration.getPort())))
-                .removeFromAddresses(address)
-                .endSubset()
-                .done();
-        LOG.info("Endpoint updated: {}", updatedEndpoints);
+        for (EndpointSubset s : resource.get().getSubsets()) {
+            if (s.getPorts().contains(registration.getPort())) {
+                s.getAddresses().remove(address);
+            }
+        }
+        resource.edit().setSubsets(resource.get().getSubsets());
+//                .editMatchingSubset(builder -> builder.hasMatchingPort(v -> v.getPort().equals(registration.getPort())))
+//                .removeFromAddresses(address)
+//                .endSubset()
+//                .done();
+        LOG.info("Endpoint updated: {}", resource.get().getSubsets());
 
-        resource.get().getSubsets().stream()
-                .filter(subset -> subset.getAddresses().size() == 0)
-                .forEach(subset -> resource.edit()
-                        .removeFromSubsets(subset)
-                        .done());
+        // TODO - remove empty subset
+//        resource.get().getSubsets().stream()
+//                .filter(subset -> subset.getAddresses().size() == 0)
+//                .forEach(subset -> resource.edit()
+//                        .removeFromSubsets(subset)
+//                        .done());
     }
 
     @Override

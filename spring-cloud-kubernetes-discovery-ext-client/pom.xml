@@ -69,7 +69,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-kubernetes</artifactId>
+			<artifactId>spring-cloud-starter-kubernetes-fabric8</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -78,7 +78,7 @@
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>Hoxton.RELEASE</version>
+				<version>2022.0.3</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
