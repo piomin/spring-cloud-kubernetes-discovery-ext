@@ -16,18 +16,18 @@ import org.springframework.web.client.RestTemplate;
 @EnableAsync
 public class SpringCloudKubernetesDiscoveryExtWatcherApp {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SpringCloudKubernetesDiscoveryExtWatcherApp.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(SpringCloudKubernetesDiscoveryExtWatcherApp.class, args);
+    }
 
-	@Bean
-	RestTemplate restTemplate() {
-		return new RestTemplateBuilder().build();
-	}
+    @Bean
+    RestTemplate restTemplate() {
+        return new RestTemplateBuilder().build();
+    }
 
-	@Bean
-	List<String> watchedUrls() {
-		return new ArrayList<>();
-	}
+    @Bean
+    List<String> watchedUrls() {
+        return new ArrayList<>();
+    }
 
 }

@@ -1,7 +1,6 @@
 package org.springframework.cloud.kubernetes.discovery.ext.watcher.model;
 
 import org.springframework.cloud.client.serviceregistry.Registration;
-import org.springframework.cloud.kubernetes.discovery.KubernetesDiscoveryProperties;
 
 import java.net.URI;
 import java.util.HashMap;

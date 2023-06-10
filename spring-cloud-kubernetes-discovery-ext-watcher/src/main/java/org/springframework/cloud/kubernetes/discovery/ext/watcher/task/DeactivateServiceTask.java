@@ -1,22 +1,21 @@
 package org.springframework.cloud.kubernetes.discovery.ext.watcher.task;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import io.fabric8.kubernetes.api.model.DoneableEndpoints;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.EndpointAddressBuilder;
+import io.fabric8.kubernetes.api.model.EndpointSubset;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.cloud.kubernetes.discovery.ext.watcher.model.KubernetesRegistration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Async
@@ -64,7 +63,7 @@ public class DeactivateServiceTask {
 
     private void deregister(KubernetesRegistration registration) {
         LOGGER.info("De-registering endpoint: {}", registration);
-        Resource<Endpoints, DoneableEndpoints> resource = kubernetesClient.endpoints()
+        Resource<Endpoints> resource = kubernetesClient.endpoints()
                 .inNamespace(kubernetesClient.getNamespace())
                 .withName(registration.getMetadata().get("name"));
 
@@ -72,18 +71,17 @@ public class DeactivateServiceTask {
 		List<EndpointAddress> addressList = resource.get().getSubsets().get(0).getAddresses();
         addressList.remove(address);
         if (addressList.size() > 0) {
-			Endpoints updatedEndpoints = resource.edit()
-					.editMatchingSubset(builder -> builder
-							.hasMatchingPort(v -> v.getPort().equals(registration.getPort())))
-					.withAddresses(addressList)
-					.endSubset()
-					.done();
-			LOGGER.info("Endpoint updated: {}", updatedEndpoints);
+            Endpoints e = resource.get();
+            for (EndpointSubset s : e.getSubsets()) {
+                if (s.getPorts().contains(registration.getPort())) {
+                    s.getAddresses().add(new EndpointAddressBuilder().withIp(registration.getHost()).build());
+                }
+            }
+            resource.edit().setSubsets(e.getSubsets());
+			LOGGER.info("Endpoint updated: {}", e);
 		} else {
-			Endpoints updatedEndpoints = resource.edit()
-					.withSubsets(new ArrayList<>())
-					.done();
-			LOGGER.info("Endpoint updated: {}", updatedEndpoints);
+			resource.edit().setSubsets(new ArrayList<>());
+			LOGGER.info("Endpoint updated: {}", resource.get());
 		}
 
     }
