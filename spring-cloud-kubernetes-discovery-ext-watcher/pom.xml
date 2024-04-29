@@ -12,10 +12,10 @@
 
     <artifactId>spring-cloud-kubernetes-discovery-ext-watcher</artifactId>
     <groupId>com.github.piomin</groupId>
-    <version>1.0.1.RELEASE</version>
+    <version>1.1-SNAPSHOT</version>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
     </properties>
 
     <dependencies>

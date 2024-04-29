@@ -7,7 +7,7 @@
     <groupId>com.github.piomin</groupId>
     <artifactId>spring-cloud-kubernetes-discovery-ext-starter</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.1.RELEASE</version>
+    <version>1.1-SNAPSHOT</version>
 
     <properties>
         <sonar.projectKey>piomin_spring-cloud-kubernetes-discovery-ext</sonar.projectKey>
