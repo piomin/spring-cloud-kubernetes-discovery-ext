@@ -9,6 +9,8 @@ public class KubernetesWatcherProperties {
     private Boolean allNamespaces = false;
     private int retries = 3;
     private int retryTimeout = 1000;
+    private boolean historyEnabled = true;
+    private int historyMaxSize = 1000;
 
     public String getTargetNamespace() {
         return targetNamespace;
@@ -40,5 +42,21 @@ public class KubernetesWatcherProperties {
 
     public void setRetryTimeout(int retryTimeout) {
         this.retryTimeout = retryTimeout;
+    }
+
+    public boolean isHistoryEnabled() {
+        return historyEnabled;
+    }
+
+    public void setHistoryEnabled(boolean historyEnabled) {
+        this.historyEnabled = historyEnabled;
+    }
+
+    public int getHistoryMaxSize() {
+        return historyMaxSize;
+    }
+
+    public void setHistoryMaxSize(int historyMaxSize) {
+        this.historyMaxSize = historyMaxSize;
     }
 }

@@ -8,7 +8,10 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cloud.kubernetes.discovery.ext.watcher.model.DiscoveryEvent;
+import org.springframework.cloud.kubernetes.discovery.ext.watcher.model.EventType;
 import org.springframework.cloud.kubernetes.discovery.ext.watcher.model.KubernetesRegistration;
+import org.springframework.cloud.kubernetes.discovery.ext.watcher.service.DiscoveryEventStore;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -28,23 +31,52 @@ public class DeactivateServiceTask {
     private KubernetesClient kubernetesClient;
     private RestTemplate restTemplate;
     private List<String> watchedUrls;
+    private DiscoveryEventStore eventStore;
 
-    public DeactivateServiceTask(KubernetesClient kubernetesClient, RestTemplate restTemplate, List<String> watchedUrls) {
+    public DeactivateServiceTask(KubernetesClient kubernetesClient, RestTemplate restTemplate,
+                                 List<String> watchedUrls, DiscoveryEventStore eventStore) {
         this.kubernetesClient = kubernetesClient;
         this.restTemplate = restTemplate;
         this.watchedUrls = watchedUrls;
+        this.eventStore = eventStore;
     }
 
     public void process(String url, KubernetesRegistration registration) {
+        // Record DEREGISTRATION_STARTED
+        eventStore.addEvent(new DiscoveryEvent(
+            EventType.DEREGISTRATION_STARTED,
+            registration.getServiceId(),
+            registration.getHost(),
+            registration.getPort(),
+            "Starting deregistration retry process"
+        ));
+
         boolean ok = false;
         ResponseEntity<String> entity = null;
         for (int i = 0; i < RETRIES; i++) {
             try {
                 entity = restTemplate.getForEntity(url, String.class);
             } catch (Exception e) {
-
+                // Record HEALTH_CHECK_FAILED for each retry
+                eventStore.addEvent(new DiscoveryEvent(
+                    EventType.HEALTH_CHECK_FAILED,
+                    registration.getServiceId(),
+                    registration.getHost(),
+                    registration.getPort(),
+                    "Health check retry " + (i + 1) + " failed: " + e.getMessage()
+                ));
             }
             if (entity == null || entity.getStatusCode().value() != 200) {
+                if (entity != null) {
+                    // Record HEALTH_CHECK_FAILED for non-200 response
+                    eventStore.addEvent(new DiscoveryEvent(
+                        EventType.HEALTH_CHECK_FAILED,
+                        registration.getServiceId(),
+                        registration.getHost(),
+                        registration.getPort(),
+                        "Health check retry " + (i + 1) + " failed with status: " + entity.getStatusCode().value()
+                    ));
+                }
                 try {
                     Thread.sleep(RETRY_PERIOD);
                 } catch (InterruptedException e) {
@@ -52,6 +84,14 @@ public class DeactivateServiceTask {
                 }
             } else {
                 ok = true;
+                // Record HEALTH_CHECK_SUCCESS when service recovers
+                eventStore.addEvent(new DiscoveryEvent(
+                    EventType.HEALTH_CHECK_SUCCESS,
+                    registration.getServiceId(),
+                    registration.getHost(),
+                    registration.getPort(),
+                    "Service recovered on retry " + (i + 1) + " - deregistration cancelled"
+                ));
                 break;
             }
         }
@@ -84,6 +124,14 @@ public class DeactivateServiceTask {
 			LOGGER.info("Endpoint updated: {}", resource.get());
 		}
 
+        // Record DEREGISTRATION_COMPLETED
+        eventStore.addEvent(new DiscoveryEvent(
+            EventType.DEREGISTRATION_COMPLETED,
+            registration.getServiceId(),
+            registration.getHost(),
+            registration.getPort(),
+            "Service successfully deregistered from Kubernetes"
+        ));
     }
 
 }
