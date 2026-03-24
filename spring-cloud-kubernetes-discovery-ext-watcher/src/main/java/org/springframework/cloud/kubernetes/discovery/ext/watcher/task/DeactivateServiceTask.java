@@ -44,7 +44,7 @@ public class DeactivateServiceTask {
             } catch (Exception e) {
 
             }
-            if (entity == null || entity.getStatusCodeValue() != 200) {
+            if (entity == null || entity.getStatusCode().value() != 200) {
                 try {
                     Thread.sleep(RETRY_PERIOD);
                 } catch (InterruptedException e) {

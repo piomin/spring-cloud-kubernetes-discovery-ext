@@ -11,6 +11,7 @@ import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.cloud.kubernetes.commons.discovery.KubernetesDiscoveryProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.net.UnknownHostException;
 
@@ -29,9 +30,10 @@ public class KubernetesAutoServiceRegistrationAutoConfiguration {
             AutoServiceRegistrationProperties autoServiceRegistrationProperties,
             KubernetesDiscoveryProperties properties,
             KubernetesRegistrationProperties registrationProperties,
-            KubernetesRegistration registration, PodUtils podUtils) {
+            KubernetesRegistration registration, PodUtils podUtils,
+            WebApplicationContext context) {
         return new KubernetesAutoServiceRegistration(registry,
-                autoServiceRegistrationProperties, registration, properties, registrationProperties, podUtils);
+                autoServiceRegistrationProperties, registration, properties, registrationProperties, podUtils, context);
     }
 
     @Bean
