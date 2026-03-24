@@ -5,7 +5,7 @@ import java.net.UnknownHostException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.boot.web.context.WebServerInitializedEvent;
+import org.springframework.boot.web.server.context.WebServerInitializedEvent;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.SmartApplicationListener;
 
@@ -21,7 +21,7 @@ public class KubernetesAutoServiceRegistrationListener implements SmartApplicati
 
     @Override
     public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
-        return WebServerInitializedEvent.class.isAssignableFrom(eventType);
+        return org.springframework.boot.web.server.context.WebServerInitializedEvent.class.isAssignableFrom(eventType);
     }
 
     @Override

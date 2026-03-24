@@ -6,6 +6,7 @@ import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
 import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.cloud.kubernetes.commons.discovery.KubernetesDiscoveryProperties;
 import org.springframework.core.env.Environment;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -20,8 +21,10 @@ public class KubernetesAutoServiceRegistration extends AbstractAutoServiceRegist
     KubernetesAutoServiceRegistration(ServiceRegistry<KubernetesRegistration> serviceRegistry,
                                       AutoServiceRegistrationProperties autoServiceRegistrationProperties,
                                       KubernetesRegistration registration, KubernetesDiscoveryProperties properties,
-                                      KubernetesRegistrationProperties registrationProperties, PodUtils podUtils) {
-        super(serviceRegistry, autoServiceRegistrationProperties);
+                                      KubernetesRegistrationProperties registrationProperties,
+                                      PodUtils podUtils,
+                                      WebApplicationContext context) {
+        super(context, serviceRegistry, autoServiceRegistrationProperties);
         this.properties = properties;
         this.registrationProperties = registrationProperties;
         this.registration = registration;

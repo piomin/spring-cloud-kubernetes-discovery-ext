@@ -6,7 +6,6 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.cloud.kubernetes.discovery.ext.watcher.model.KubernetesRegistration;
 import org.springframework.cloud.kubernetes.discovery.ext.watcher.task.DeactivateServiceTask;
 import org.springframework.http.HttpStatus;
@@ -53,7 +52,7 @@ public class LivenessScheduler {
                                 ResponseEntity<String> responseEntity = null;
                                 try {
                                     responseEntity = restTemplate.getForEntity(url, String.class);
-                                    LOGGER.info("Active endpoint check: url->{}, status->{}", url, responseEntity.getStatusCodeValue());
+                                    LOGGER.info("Active endpoint check: url->{}, status->{}", url, responseEntity.getStatusCode().value());
                                 } catch (Exception e) {
                                     LOGGER.info("Error connecting to endpoint: {}", url);
                                 }
